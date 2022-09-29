@@ -55,10 +55,6 @@ impl fmt::Display for Medicine {
 pub struct Medicines(HashSet<Medicine>);
 
 impl Medicines {
-    pub fn new() -> Self {
-        Medicines(HashSet::new())
-    }
-
     pub fn get_instance() -> Arc<Mutex<Self>> {
         static mut MEDICINES: Option<Arc<Mutex<Medicines>>> = None;
 
@@ -81,13 +77,13 @@ impl Medicines {
         }
     }
 
-    pub fn insert(&self, medicine: Medicine) -> bool {
+    pub fn insert(medicine: Medicine) -> bool {
         let _medicines = Self::get_instance();
         let res = _medicines.lock().unwrap().0.insert(medicine);
         res
     }
 
-    pub fn search(&self, name: &str) -> Option<Medicine> {
+    pub fn search(name: &str) -> Option<Medicine> {
         let _medicines = Self::get_instance();
         let res = if let Some(res) = _medicines.lock().unwrap().0.get(&Medicine::new(name)) {
             Some(res.clone())
@@ -97,9 +93,17 @@ impl Medicines {
         res
     }
 
-    pub fn delete(&self, name: &str) -> bool {
+    pub fn delete(name: &str) -> bool {
         let mut _medicines = Self::get_instance();
         let res = _medicines.lock().unwrap().0.remove(&Medicine::new(name));
+        res
+    }
+
+    pub fn flush() -> std::io::Result<()> {
+        let _medicines = Self::get_instance();
+        let mut _database = Self::get_database();
+        _database.lock().unwrap().update(toml::to_string(&_medicines.lock().unwrap().0).unwrap());
+        let res = _database.lock().unwrap().write();
         res
     }
 }
@@ -117,16 +121,15 @@ mod test {
     #[test]
     fn medicines_test() {
         // prepare
-        let mut _medicines = Medicines::new();
         let mut _medicine = Medicine::new("甘草");
         _medicine.attribute = String::from("补脾益气、润肺止咳、清热解毒和调和诸药");
         // insert
-        assert_eq!(_medicines.insert(_medicine.clone()), true);
-        assert_eq!(_medicines.insert(_medicine.clone()), false);
+        assert_eq!(Medicines::insert(_medicine.clone()), true);
+        assert_eq!(Medicines::insert(_medicine.clone()), false);
         // search
-        assert_eq!(_medicines.search("甘草"), Some(_medicine.clone()));
+        assert_eq!(Medicines::search("甘草"), Some(_medicine.clone()));
         // delete
-        assert_eq!(_medicines.delete("甘草"), true);
-        assert_eq!(_medicines.delete("甘草"), false);
+        assert_eq!(Medicines::delete("甘草"), true);
+        assert_eq!(Medicines::delete("甘草"), false);
     }
 }

@@ -102,7 +102,7 @@ mod test {
 
         // create
         let tmp = "test_create_file";
-        fs::remove_file(Path::new(DATABASE_PATH).join(tmp));
+        let _ = fs::remove_file(Path::new(DATABASE_PATH).join(tmp));
         match Database::create(tmp) {
             Ok(_) => { assert!(true) },
             Err(_) => { assert!(false) },
