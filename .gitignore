@@ -1,0 +1,5 @@
+### For Rust
+**/target/
+**/Cargo.lock
+**/*.rs.bk
+### Rust End
