@@ -3,3 +3,6 @@
 **/Cargo.lock
 **/*.rs.bk
 ### Rust End
+
+### Vim swp
+**/*.swp
