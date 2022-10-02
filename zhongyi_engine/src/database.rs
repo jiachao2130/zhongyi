@@ -111,5 +111,16 @@ mod test {
             Ok(_) => { assert!(false) },
             Err(_) => { assert!(true) },
         }
+
+        // load, write
+        let _data = String::from("test data");
+        if let Ok(mut _db) = Database::load(tmp) {
+            _db.update(_data.clone());
+            if let Err(_) = _db.write() {
+                assert!(false);
+            }
+        }
+
+        let _ = fs::remove_file(Path::new(DATABASE_PATH).join(tmp));
     }
 }
